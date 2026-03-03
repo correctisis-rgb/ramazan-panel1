@@ -10,53 +10,68 @@
             text-align: center;
             background-color: black;
             color: white;
-            margin-top: 50px;
+            margin: 0;
+            padding-top: 20px;
             transition: background 1s;
         }
+
         h1 {
-            font-size: 2.5em;
+            font-size: 2em;
+            margin: 15px 0;
         }
+
         .countdown {
-            font-size: 3em;
+            font-size: 2em;
             font-weight: bold;
             color: red;
-            margin-top: 20px;
+            margin: 15px 0;
+            word-wrap: break-word;
         }
 
         /* Sağ üst iftar kutusu */
         .iftar-box {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             background-color: #111;
             border: 2px solid red;
-            padding: 15px 20px;
-            font-size: 1.2em;
+            padding: 10px 15px;
+            font-size: 1em;
             font-weight: bold;
             color: #00ffcc;
             border-radius: 10px;
-            box-shadow: 0 0 15px red;
+            box-shadow: 0 0 10px red;
+            max-width: 40%;
         }
 
         /* Sol üst hava durumu */
         .weather-box {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
             background:#111;
-            padding:15px;
+            padding:10px;
             border-radius:10px;
             border:2px solid #00aaff;
             color:#00ffff;
             font-weight:bold;
-            box-shadow: 0 0 15px #00aaff;
+            box-shadow: 0 0 10px #00aaff;
+            max-width: 40%;
         }
 
         /* Ramazan günü */
         .ramadan-day {
-            font-size:2em;
+            font-size:1.5em;
             color:gold;
-            margin-top:30px;
+            margin: 15px 0;
+        }
+
+        /* Mobil uyumlu ayarlar */
+        @media screen and (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+            .countdown { font-size: 1.5em; }
+            .iftar-box, .weather-box { font-size: 0.9em; max-width: 45%; padding:8px; }
+            .ramadan-day { font-size: 1.2em; }
         }
     </style>
 </head>
@@ -84,7 +99,6 @@
     <audio id="ezanAudio" src="ezan.mp3"></audio>
 
 <script>
-
 // ---------------- IFTAR SAATLERI ----------------
 const iftarTimes = {
     "2026-02-19": "18:48",
@@ -193,7 +207,8 @@ function updateIftarCountdown() {
         document.getElementById("countdown-iftar").innerHTML =
             "İFTAR VAKTİ GELDİ 🌙";
         document.body.style.background = "darkgreen";
-        document.getElementById("ezanAudio").play();
+        const audio = document.getElementById("ezanAudio");
+        if(audio) audio.play();
         ezanPlayed = true;
         return;
     }
@@ -240,6 +255,9 @@ function loadWeather() {
         const temp = data.current_weather.temperature;
         document.getElementById("weather-box").innerHTML =
             `🌡 Gebze ${temp}°C`;
+    })
+    .catch(err => {
+        document.getElementById("weather-box").innerHTML = "Hava durumu alınamadı";
     });
 }
 
