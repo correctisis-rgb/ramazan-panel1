@@ -40,6 +40,16 @@ h1 { font-size: 2em; }
     border-radius:10px;
     border:2px solid #00aaff;
 }
+.visitor-box {
+    position: fixed;
+    top: 160px;
+    right: 20px;
+    background:#111;
+    border:2px solid yellow;
+    padding:12px;
+    border-radius:10px;
+    font-size:0.9em;
+}
 select{
     padding:8px;
     font-size:1em;
@@ -64,6 +74,12 @@ select{
 
 <div id="today-iftar" class="iftar-box"></div>
 <div id="weather-box" class="weather-box">Hava yükleniyor...</div>
+
+<div id="visitor-box" class="visitor-box">
+  <div>📊 Günlük Ziyaretçi: <span id="dailyVisitors">0</span></div>
+  <div>📊 Toplam Ziyaretçi: <span id="totalVisitors">0</span></div>
+  <div>👥 Anlık Online: <span id="onlineVisitors">0</span></div>
+</div>
 
 <h1>Bugün 17:00'e Kalan Süre</h1>
 <div id="countdown-1700" class="countdown"></div>
@@ -130,101 +146,129 @@ dilovasi:{
 };
 
 function changeCity(){
-selectedCity=document.getElementById("citySelect").value;
-showTodayIftar();
-updateIftarCountdown();
-loadWeather();
+    selectedCity=document.getElementById("citySelect").value;
+    showTodayIftar();
+    updateIftarCountdown();
+    loadWeather();
 }
 
 // ----------- DIGER SAYACLAR (ESKI SISTEM) -----------
 function updateCountdown(h,m,id){
-const now=new Date();
-const target=new Date();
-target.setHours(h,m,0,0);
-const diff=target-now;
-if(diff<=0){document.getElementById(id).innerHTML="Süre doldu!";return;}
-const hours=Math.floor(diff/(1000*60*60));
-const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
-const seconds=Math.floor((diff%(1000*60))/1000);
-document.getElementById(id).innerHTML=
-`${hours} saat ${minutes} dakika ${seconds} saniye`;
-setTimeout(()=>updateCountdown(h,m,id),1000);
+    const now=new Date();
+    const target=new Date();
+    target.setHours(h,m,0,0);
+    const diff=target-now;
+    if(diff<=0){document.getElementById(id).innerHTML="Süre doldu!";return;}
+    const hours=Math.floor(diff/(1000*60*60));
+    const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((diff%(1000*60))/1000);
+    document.getElementById(id).innerHTML=
+    `${hours} saat ${minutes} dakika ${seconds} saniye`;
+    setTimeout(()=>updateCountdown(h,m,id),1000);
 }
 
 function updateBayramCountdown(){
-const now=new Date();
-const bayram=new Date(2026,2,20,0,0,0);
-const diff=bayram-now;
-if(diff<=0){document.getElementById("countdown-bayram").innerHTML="Bayram geldi! 🎉";return;}
-const days=Math.floor(diff/(1000*60*60*24));
-const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
-const seconds=Math.floor((diff%(1000*60))/1000);
-document.getElementById("countdown-bayram").innerHTML=
-`${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
-setTimeout(updateBayramCountdown,1000);
+    const now=new Date();
+    const bayram=new Date(2026,2,20,0,0,0);
+    const diff=bayram-now;
+    if(diff<=0){document.getElementById("countdown-bayram").innerHTML="Bayram geldi! 🎉";return;}
+    const days=Math.floor(diff/(1000*60*60*24));
+    const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((diff%(1000*60))/1000);
+    document.getElementById("countdown-bayram").innerHTML=
+    `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
+    setTimeout(updateBayramCountdown,1000);
 }
 
 function calculateRamadanDay(){
-const start=new Date("2026-02-19");
-const now=new Date();
-const diff=Math.floor((now-start)/(1000*60*60*24))+1;
-if(diff>0 && diff<=30){
-document.getElementById("ramadan-day").innerHTML=
-`🌙 Ramazan'ın ${diff}. Günü`;
-}
+    const start=new Date("2026-02-19");
+    const now=new Date();
+    const diff=Math.floor((now-start)/(1000*60*60*24))+1;
+    if(diff>0 && diff<=30){
+        document.getElementById("ramadan-day").innerHTML=
+        `🌙 Ramazan'ın ${diff}. Günü`;
+    }
 }
 
 // ----------- IFTAR + EZAN -----------
 let ezanPlayed=false;
 
 function showTodayIftar(){
-const now=new Date();
-const today=now.toISOString().split('T')[0];
-const time=iftarTimes[selectedCity][today];
-if(time){
-document.getElementById("today-iftar").innerHTML=
-`🌙 ${selectedCity.toUpperCase()}<br>${time}`;
-}
+    const now=new Date();
+    const today=now.toISOString().split('T')[0];
+    const time=iftarTimes[selectedCity][today];
+    if(time){
+        document.getElementById("today-iftar").innerHTML=
+        `🌙 ${selectedCity.toUpperCase()}<br>${time}`;
+    }
 }
 
 function updateIftarCountdown(){
-const now=new Date();
-const today=now.toISOString().split('T')[0];
-const time=iftarTimes[selectedCity][today];
-if(!time) return;
-const [h,m]=time.split(":");
-const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m);
-const diff=target-now;
+    const now=new Date();
+    const today=now.toISOString().split('T')[0];
+    const time=iftarTimes[selectedCity][today];
+    if(!time) return;
+    const [h,m]=time.split(":");
+    const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m);
+    const diff=target-now;
 
-if(diff<=0 && !ezanPlayed){
-document.getElementById("countdown-iftar").innerHTML="İFTAR VAKTİ 🌙";
-document.body.style.background="darkgreen";
-document.getElementById("ezanAudio").play();
-ezanPlayed=true;
-return;
-}
+    if(diff<=0 && !ezanPlayed){
+        document.getElementById("countdown-iftar").innerHTML="İFTAR VAKTİ 🌙";
+        document.body.style.background="darkgreen";
+        document.getElementById("ezanAudio").play();
+        ezanPlayed=true;
+        return;
+    }
 
-const hours=Math.floor(diff/(1000*60*60));
-const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
-const seconds=Math.floor((diff%(1000*60))/1000);
-document.getElementById("countdown-iftar").innerHTML=
-`${hours} saat ${minutes} dakika ${seconds} saniye`;
+    const hours=Math.floor(diff/(1000*60*60));
+    const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((diff%(1000*60))/1000);
+    document.getElementById("countdown-iftar").innerHTML=
+    `${hours} saat ${minutes} dakika ${seconds} saniye`;
 
-setTimeout(updateIftarCountdown,1000);
+    setTimeout(updateIftarCountdown,1000);
 }
 
 // ----------- HAVA DURUMU -----------
 function loadWeather(){
-const lat=cityCoords[selectedCity].lat;
-const lon=cityCoords[selectedCity].lon;
-fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-.then(res=>res.json())
-.then(data=>{
-document.getElementById("weather-box").innerHTML=
-`🌡 ${selectedCity.toUpperCase()} ${data.current_weather.temperature}°C`;
-});
+    const lat=cityCoords[selectedCity].lat;
+    const lon=cityCoords[selectedCity].lon;
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("weather-box").innerHTML=
+        `🌡 ${selectedCity.toUpperCase()} ${data.current_weather.temperature}°C`;
+    });
 }
+
+// ---------------- VISITOR COUNTERS ----------------
+const visitorKey = "totalVisitors2026";
+const dailyVisitorKey = "dailyVisitors2026";
+const today = new Date().toISOString().split('T')[0];
+
+let totalVisitors = parseInt(localStorage.getItem(visitorKey)) || 0;
+let storedDaily = JSON.parse(localStorage.getItem(dailyVisitorKey)) || {};
+let dailyVisitors = storedDaily[today] || 0;
+
+dailyVisitors++;
+totalVisitors++;
+storedDaily[today] = dailyVisitors;
+localStorage.setItem(visitorKey, totalVisitors);
+localStorage.setItem(dailyVisitorKey, JSON.stringify(storedDaily));
+
+document.getElementById("dailyVisitors").innerText = dailyVisitors;
+document.getElementById("totalVisitors").innerText = totalVisitors;
+
+// Online tahmini
+sessionStorage.setItem("onlineUser", Date.now());
+function updateOnlineVisitors(){
+    let onlineCount = 0;
+    if(sessionStorage.getItem("onlineUser")) onlineCount++;
+    document.getElementById("onlineVisitors").innerText = onlineCount;
+}
+setInterval(updateOnlineVisitors,5000);
+updateOnlineVisitors();
 
 // ----------- BASLAT -----------
 showTodayIftar();
