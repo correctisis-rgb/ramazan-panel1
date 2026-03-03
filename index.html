@@ -1,260 +1,239 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Gebze İftara Ne Kadar Kaldı</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: black;
-            color: white;
-            margin-top: 50px;
-            transition: background 1s;
-        }
-        h1 {
-            font-size: 2.5em;
-        }
-        .countdown {
-            font-size: 3em;
-            font-weight: bold;
-            color: red;
-            margin-top: 20px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 İftara Ne Kadar Kaldı</title>
 
-        /* Sağ üst iftar kutusu */
-        .iftar-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #111;
-            border: 2px solid red;
-            padding: 15px 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #00ffcc;
-            border-radius: 10px;
-            box-shadow: 0 0 15px red;
-        }
-
-        /* Sol üst hava durumu */
-        .weather-box {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background:#111;
-            padding:15px;
-            border-radius:10px;
-            border:2px solid #00aaff;
-            color:#00ffff;
-            font-weight:bold;
-            box-shadow: 0 0 15px #00aaff;
-        }
-
-        /* Ramazan günü */
-        .ramadan-day {
-            font-size:2em;
-            color:gold;
-            margin-top:30px;
-        }
-    </style>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: black;
+    color: white;
+    margin-top: 50px;
+    transition: background 1s;
+}
+h1 { font-size: 2em; }
+.countdown {
+    font-size: 2em;
+    font-weight: bold;
+    color: red;
+    margin-top: 15px;
+}
+.iftar-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #111;
+    border: 2px solid red;
+    padding: 12px 15px;
+    font-size: 1em;
+    border-radius: 10px;
+}
+.weather-box {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background:#111;
+    padding:12px;
+    border-radius:10px;
+    border:2px solid #00aaff;
+}
+select{
+    padding:8px;
+    font-size:1em;
+    margin-bottom:20px;
+    border-radius:8px;
+}
+.ramadan-day{
+    font-size:1.5em;
+    color:gold;
+    margin-top:20px;
+}
+</style>
 </head>
 <body>
 
-    <!-- Sağ üst bugünkü iftar -->
-    <div id="today-iftar" class="iftar-box"></div>
+<h1>İlçe Seç</h1>
+<select id="citySelect" onchange="changeCity()">
+<option value="gebze">Gebze</option>
+<option value="derince">Derince</option>
+<option value="dilovasi">Dilovası</option>
+</select>
 
-    <!-- Sol üst hava -->
-    <div id="weather-box" class="weather-box">Hava yükleniyor...</div>
+<div id="today-iftar" class="iftar-box"></div>
+<div id="weather-box" class="weather-box">Hava yükleniyor...</div>
 
-    <h1>Bugün 17:00'e Kalan Süre</h1>
-    <div id="countdown-1700" class="countdown"></div>
+<h1>Bugün 17:00'e Kalan Süre</h1>
+<div id="countdown-1700" class="countdown"></div>
 
-    <h1>İftara Kalan Süre</h1>
-    <div id="countdown-iftar" class="countdown"></div>
+<h1>İftara Kalan Süre</h1>
+<div id="countdown-iftar" class="countdown"></div>
 
-    <h1>Ramazan Bayramı'na Kalan Süre</h1>
-    <div id="countdown-bayram" class="countdown"></div>
+<h1>Ramazan Bayramı'na Kalan Süre</h1>
+<div id="countdown-bayram" class="countdown"></div>
 
-    <!-- Ramazan günü -->
-    <div id="ramadan-day" class="ramadan-day"></div>
+<div id="ramadan-day" class="ramadan-day"></div>
 
-    <!-- Ezan -->
-    <audio id="ezanAudio" src="ezan.mp3"></audio>
+<audio id="ezanAudio" src="ezan.mp3"></audio>
 
 <script>
 
-// ---------------- IFTAR SAATLERI ----------------
-const iftarTimes = {
-    "2026-02-19": "18:48",
-    "2026-02-20": "18:49",
-    "2026-02-21": "18:50",
-    "2026-02-22": "18:51",
-    "2026-02-23": "18:53",
-    "2026-02-24": "18:54",
-    "2026-02-25": "18:55",
-    "2026-02-26": "18:56",
-    "2026-02-27": "18:57",
-    "2026-02-28": "18:58",
-    "2026-03-01": "19:00",
-    "2026-03-02": "19:01",
-    "2026-03-03": "19:02",
-    "2026-03-04": "19:03",
-    "2026-03-05": "19:04",
-    "2026-03-06": "19:05",
-    "2026-03-07": "19:06",
-    "2026-03-08": "19:07",
-    "2026-03-09": "19:09",
-    "2026-03-10": "19:10",
-    "2026-03-11": "19:11",
-    "2026-03-12": "19:12",
-    "2026-03-13": "19:13",
-    "2026-03-14": "19:14",
-    "2026-03-15": "19:15",
-    "2026-03-16": "19:16",
-    "2026-03-17": "19:17",
-    "2026-03-18": "19:18",
-    "2026-03-19": "19:19"
+// ---------------- ILCE KOORDINATLARI ----------------
+const cityCoords = {
+    gebze:{lat:40.8,lon:29.43},
+    derince:{lat:40.76,lon:29.83},
+    dilovasi:{lat:40.79,lon:29.54}
 };
 
-// ---------------- BUGUNUN IFTARI ----------------
-function showTodayIftar() {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const iftarTime = iftarTimes[today];
+let selectedCity="gebze";
 
-    if (iftarTime) {
-        document.getElementById("today-iftar").innerHTML =
-            `🌙 Bugünkü İftar Saati<br>${iftarTime}`;
-    } else {
-        document.getElementById("today-iftar").innerHTML =
-            `Ramazan dışında`;
-    }
+// ---------------- IFTAR SAATLERI ----------------
+const iftarTimes={
+gebze:{
+"2026-02-19":"18:48","2026-02-20":"18:49","2026-02-21":"18:50",
+"2026-02-22":"18:51","2026-02-23":"18:53","2026-02-24":"18:54",
+"2026-02-25":"18:55","2026-02-26":"18:56","2026-02-27":"18:57",
+"2026-02-28":"18:58","2026-03-01":"19:00","2026-03-02":"19:01",
+"2026-03-03":"19:02","2026-03-04":"19:03","2026-03-05":"19:04",
+"2026-03-06":"19:05","2026-03-07":"19:06","2026-03-08":"19:07",
+"2026-03-09":"19:09","2026-03-10":"19:10","2026-03-11":"19:11",
+"2026-03-12":"19:12","2026-03-13":"19:13","2026-03-14":"19:14",
+"2026-03-15":"19:15","2026-03-16":"19:16","2026-03-17":"19:17",
+"2026-03-18":"19:18","2026-03-19":"19:19","2026-03-20":"19:20"
+},
+derince:{
+"2026-02-19":"18:47","2026-02-20":"18:48","2026-02-21":"18:49",
+"2026-02-22":"18:50","2026-02-23":"18:52","2026-02-24":"18:53",
+"2026-02-25":"18:54","2026-02-26":"18:55","2026-02-27":"18:56",
+"2026-02-28":"18:57","2026-03-01":"18:59","2026-03-02":"19:00",
+"2026-03-03":"19:00","2026-03-04":"19:01","2026-03-05":"19:02",
+"2026-03-06":"19:03","2026-03-07":"19:04","2026-03-08":"19:05",
+"2026-03-09":"19:07","2026-03-10":"19:08","2026-03-11":"19:09",
+"2026-03-12":"19:10","2026-03-13":"19:11","2026-03-14":"19:12",
+"2026-03-15":"19:13","2026-03-16":"19:14","2026-03-17":"19:15",
+"2026-03-18":"19:16","2026-03-19":"19:17","2026-03-20":"19:18"
+},
+dilovasi:{
+"2026-02-19":"18:48","2026-02-20":"18:49","2026-02-21":"18:50",
+"2026-02-22":"18:51","2026-02-23":"18:53","2026-02-24":"18:54",
+"2026-02-25":"18:55","2026-02-26":"18:56","2026-02-27":"18:57",
+"2026-02-28":"18:58","2026-03-01":"19:00","2026-03-02":"19:01",
+"2026-03-03":"19:01","2026-03-04":"19:02","2026-03-05":"19:04",
+"2026-03-06":"19:05","2026-03-07":"19:06","2026-03-08":"19:07",
+"2026-03-09":"19:08","2026-03-10":"19:09","2026-03-11":"19:10",
+"2026-03-12":"19:11","2026-03-13":"19:12","2026-03-14":"19:14",
+"2026-03-15":"19:15","2026-03-16":"19:16","2026-03-17":"19:17",
+"2026-03-18":"19:18","2026-03-19":"19:19","2026-03-20":"19:20"
+}
+};
+
+function changeCity(){
+selectedCity=document.getElementById("citySelect").value;
+showTodayIftar();
+updateIftarCountdown();
+loadWeather();
 }
 
-// ---------------- RAMAZAN KACINCI GUN ----------------
-function calculateRamadanDay() {
-    const start = new Date("2026-02-19");
-    const now = new Date();
-    const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
-
-    if (diff > 0 && diff <= 30) {
-        document.getElementById("ramadan-day").innerHTML =
-            `🌙 Ramazan'ın ${diff}. Günü`;
-    }
+// ----------- DIGER SAYACLAR (ESKI SISTEM) -----------
+function updateCountdown(h,m,id){
+const now=new Date();
+const target=new Date();
+target.setHours(h,m,0,0);
+const diff=target-now;
+if(diff<=0){document.getElementById(id).innerHTML="Süre doldu!";return;}
+const hours=Math.floor(diff/(1000*60*60));
+const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+const seconds=Math.floor((diff%(1000*60))/1000);
+document.getElementById(id).innerHTML=
+`${hours} saat ${minutes} dakika ${seconds} saniye`;
+setTimeout(()=>updateCountdown(h,m,id),1000);
 }
 
-// ---------------- 17:00 SAYACI ----------------
-function updateCountdown(targetHour, targetMinute, elementId) {
-    const now = new Date();
-    const target = new Date();
-    target.setHours(targetHour, targetMinute, 0, 0);
-
-    const diff = target - now;
-
-    if (diff <= 0) {
-        document.getElementById(elementId).innerHTML = "Süre doldu!";
-        return;
-    }
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById(elementId).innerHTML =
-        `${hours} saat ${minutes} dakika ${seconds} saniye`;
-
-    setTimeout(() => updateCountdown(targetHour, targetMinute, elementId), 1000);
+function updateBayramCountdown(){
+const now=new Date();
+const bayram=new Date(2026,2,20,0,0,0);
+const diff=bayram-now;
+if(diff<=0){document.getElementById("countdown-bayram").innerHTML="Bayram geldi! 🎉";return;}
+const days=Math.floor(diff/(1000*60*60*24));
+const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+const seconds=Math.floor((diff%(1000*60))/1000);
+document.getElementById("countdown-bayram").innerHTML=
+`${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
+setTimeout(updateBayramCountdown,1000);
 }
 
-// ---------------- IFTAR GERISAYIM + EZAN ----------------
-let ezanPlayed = false;
-
-function updateIftarCountdown() {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const iftarTime = iftarTimes[today];
-
-    if (!iftarTime) return;
-
-    const [h, m] = iftarTime.split(':');
-    const iftarDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        h,
-        m
-    );
-
-    const diff = iftarDate - now;
-
-    if (diff <= 0 && !ezanPlayed) {
-        document.getElementById("countdown-iftar").innerHTML =
-            "İFTAR VAKTİ GELDİ 🌙";
-        document.body.style.background = "darkgreen";
-        document.getElementById("ezanAudio").play();
-        ezanPlayed = true;
-        return;
-    }
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById("countdown-iftar").innerHTML =
-        `${hours} saat ${minutes} dakika ${seconds} saniye`;
-
-    setTimeout(updateIftarCountdown, 1000);
+function calculateRamadanDay(){
+const start=new Date("2026-02-19");
+const now=new Date();
+const diff=Math.floor((now-start)/(1000*60*60*24))+1;
+if(diff>0 && diff<=30){
+document.getElementById("ramadan-day").innerHTML=
+`🌙 Ramazan'ın ${diff}. Günü`;
+}
 }
 
-// ---------------- BAYRAM SAYACI ----------------
-function updateBayramCountdown() {
-    const now = new Date();
-    const bayram = new Date(2026, 2, 20, 0, 0, 0);
+// ----------- IFTAR + EZAN -----------
+let ezanPlayed=false;
 
-    const diff = bayram - now;
-
-    if (diff <= 0) {
-        document.getElementById("countdown-bayram").innerHTML =
-            "Bayram geldi! 🎉";
-        return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById("countdown-bayram").innerHTML =
-        `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
-
-    setTimeout(updateBayramCountdown, 1000);
+function showTodayIftar(){
+const now=new Date();
+const today=now.toISOString().split('T')[0];
+const time=iftarTimes[selectedCity][today];
+if(time){
+document.getElementById("today-iftar").innerHTML=
+`🌙 ${selectedCity.toUpperCase()}<br>${time}`;
+}
 }
 
-// ---------------- HAVA DURUMU (GEBZE) ----------------
-function loadWeather() {
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=40.8&longitude=29.43&current_weather=true")
-    .then(res => res.json())
-    .then(data => {
-        const temp = data.current_weather.temperature;
-        document.getElementById("weather-box").innerHTML =
-            `🌡 Gebze ${temp}°C`;
-    });
+function updateIftarCountdown(){
+const now=new Date();
+const today=now.toISOString().split('T')[0];
+const time=iftarTimes[selectedCity][today];
+if(!time) return;
+const [h,m]=time.split(":");
+const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m);
+const diff=target-now;
+
+if(diff<=0 && !ezanPlayed){
+document.getElementById("countdown-iftar").innerHTML="İFTAR VAKTİ 🌙";
+document.body.style.background="darkgreen";
+document.getElementById("ezanAudio").play();
+ezanPlayed=true;
+return;
 }
 
-// ---------------- BAŞLAT ----------------
+const hours=Math.floor(diff/(1000*60*60));
+const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+const seconds=Math.floor((diff%(1000*60))/1000);
+document.getElementById("countdown-iftar").innerHTML=
+`${hours} saat ${minutes} dakika ${seconds} saniye`;
+
+setTimeout(updateIftarCountdown,1000);
+}
+
+// ----------- HAVA DURUMU -----------
+function loadWeather(){
+const lat=cityCoords[selectedCity].lat;
+const lon=cityCoords[selectedCity].lon;
+fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("weather-box").innerHTML=
+`🌡 ${selectedCity.toUpperCase()} ${data.current_weather.temperature}°C`;
+});
+}
+
+// ----------- BASLAT -----------
 showTodayIftar();
 calculateRamadanDay();
-updateCountdown(17, 0, "countdown-1700");
+updateCountdown(17,0,"countdown-1700");
 updateIftarCountdown();
 updateBayramCountdown();
 loadWeather();
 
 </script>
-
 </body>
 </html>
-
-
-
